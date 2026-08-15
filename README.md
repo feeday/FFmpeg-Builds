@@ -1,3 +1,65 @@
+```
+import subprocess
+import os
+import glob
+
+# =========================
+# FFmpeg 路径
+# =========================
+FFMPEG_PATH = r"D:\ffmpeg-n8.1-latest-win64-gpl-8.1\bin\ffmpeg.exe"
+
+
+def fast_merge(folder_path):
+    # 查找目录下的 .webm 和 .weba 文件
+    video_list = glob.glob(os.path.join(folder_path, "*.webm"))
+    audio_list = glob.glob(os.path.join(folder_path, "*.weba"))
+
+    if not video_list:
+        print("错误：指定路径下未找到 .webm 文件。")
+        return
+
+    if not audio_list:
+        print("错误：指定路径下未找到 .weba 文件。")
+        return
+
+    # 选取第一个匹配文件
+    v_path = video_list[0]
+    a_path = audio_list[0]
+
+    out_path = os.path.join(folder_path, "merged_output.webm")
+
+    command = [
+        FFMPEG_PATH,
+        "-y",
+        "-i", v_path,
+        "-i", a_path,
+        "-c", "copy",
+        out_path
+    ]
+
+    print("视频：", v_path)
+    print("音频：", a_path)
+    print("正在无损快速合并...")
+
+    try:
+        subprocess.run(command, check=True)
+        print(f"\n合并完成：{out_path}")
+    except subprocess.CalledProcessError as e:
+        print("FFmpeg 合并失败：", e)
+    except FileNotFoundError:
+        print("找不到 FFmpeg，请检查：")
+        print(FFMPEG_PATH)
+
+
+# 修改这里
+TARGET_DIR = r"C:\test"
+
+fast_merge(TARGET_DIR)
+```
+
+
+
+
 # FFmpeg Static Auto-Builds
 
 Static Windows (x86_64) and Linux (x86_64) Builds of ffmpeg master and latest release branch.
@@ -66,3 +128,4 @@ All of those can be optionally combined with any combination of addins:
 * `4.4`/`5.0`/`5.1`/`6.0`/`6.1`/`7.0`/`7.1` to build from the respective release branch instead of master.
 * `debug` to not strip debug symbols from the binaries. This increases the output size by about 250MB.
 * `lto` build all dependencies and ffmpeg with -flto=auto (HIGHLY EXPERIMENTAL, broken for Windows, sometimes works for Linux)
+
